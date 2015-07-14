@@ -8,7 +8,9 @@ function get_dm (stationid, callback) {
 	  if (!error && response.statusCode == 200) {
 	    parseString(body, function (err,result) {
 //		console.log(result.itdRequest.$.sessionID);
-	//	console.log(JSON.stringify(result,false,2));
+//		console.log(JSON.stringify(result,false,2));
+		if (!result.itdRequest || !result.itdRequest.$.sessionID) { callback("API Error 1"); return; }
+		if (result.itdRequest.itdDepartureMonitorRequest[0].itdServingLines[0]=="") { callback("Keine Linien an dieser Station gefunden"); return; }
 		request('http://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID='+result.itdRequest.$.sessionID+'&requestID=1&dmLineSelectionAll=1', function (error, response, body) {
 		    if (!error && response.statusCode == 200) {
   			    parseString(body, function (err,result) {
@@ -23,7 +25,7 @@ function get_dm (stationid, callback) {
 					      '</div><div class=target>' + end + '</div><div class=time>' + departure.$.countdown + '</div></div>';
 				}
 				callback(output);
-	//			console.log(JSON.stringify(result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList[0].itdDeparture[0],false,2));
+// 				console.log(JSON.stringify(result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList[0].itdDeparture[0],false,2));
 		    	});
 		     } else callback('Server nicht erreichbar. Bitte später probieren.');
 		});
@@ -33,7 +35,7 @@ function get_dm (stationid, callback) {
 }
 
 function search_dm (q, callback) {
-        request('http://www.wienerlinien.at/ogd_routing/XML_STOPFINDER_REQUEST?locationServerActive=1&outputFormat=JSON&type_sf=any&name_sf=' + q, function (error, response, body) {
+        request('http://www.wienerlinien.at/ogd_routing/XML_STOPFINDER_REQUEST?locationServerActive=1&outputFormat=JSON&type_sf=stop&name_sf=' + q, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 			var output = '';
 			result = JSON.parse(body);
