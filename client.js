@@ -6,7 +6,7 @@ function get_dm (stationid, callback) {
 	  if (!error && response.statusCode == 200) {
 	    parseString(body, function (err,result) {
 //		console.log(result.itdRequest.$.sessionID);
-	//	console.log(JSON.stringify(result,false,2));
+		console.log(JSON.stringify(result,false,2));
 		request('http://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID='+result.itdRequest.$.sessionID+'&requestID=1&dmLineSelectionAll=1', function (error, response, body) {
 		    parseString(body, function (err,result) {
 			var output = '';

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Abfahrtsmonitor WienerLinien</title>
+<meta http-equiv="refresh" content="15;">
+<meta charset="UTF-8">
+<link href=\'http://fonts.googleapis.com/css?family=Oswald:700\' rel=\'stylesheet\' type=\'text/css\'>
+<style>
+ body {color: yellow; background-color:black; font-family: \'Oswald\', sans-serif;}
+ .line { border: 2px solid #888; display: inline-block; margin:0.3em; font-size:3em; padding:0.2em; background-color:#000; color: yellow; }
+ .num { display: inline-block; width:1.8em; font-size: 2em; }
+ .target { display: inline-block; width:8em; vertical-align:top; }
+ .time { display: inline-block; font-size: 2em; width:2em; text-align:right; }
+ a, a:visited, a:hover, a:active { color: yellow; }
+</style>
+</head>
+<body>
+    <h1><a href='/'><%= st %></a></h1>
+<%- erg %>
+</body>
+</html>
