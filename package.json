@@ -1,0 +1,10 @@
+{
+  "name": "DepartureMonitorWien",
+  "description": "Departure Monitor für alle Wiener Bus U-bahn und Bim Stationen",
+  "author": "Clemens Krumay",
+  "version": "0.7.0",
+  "private": true,
+  "dependencies": {
+    "xml2js": "0.4.x", "request":"2.x", "express":"4.x", "ejs":"2.x", "csv2json":"1.x"
+  }
+}

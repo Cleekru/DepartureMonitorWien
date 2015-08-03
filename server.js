@@ -3,6 +3,8 @@ var app = express();
 var request = require('request');
 var parseString = require('xml2js').parseString;
 
+var fs = require('fs');
+var gh = JSON.parse(fs.readFileSync('halt.json', 'utf8'));
 
 function get_dm (stationid, callback) {
 	request('http://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID=0&locationServerActive=1&type_dm=any&name_dm='+stationid+'&limit=8', function (error, response, body) {
@@ -52,6 +54,11 @@ function search_dm (q, callback) {
 	});	
 }
 
+function distance (x1,y1,x2,y2) {
+	//console.log(x1+' '+y1+' '+x2+' '+y2);
+	return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+}
+
 //get_dm('60201071', function(result){
 //	console.log(result);
 //});
@@ -64,9 +71,24 @@ app.get('/', function (req, res) {
 
 
 app.get('/search', function (req, res) {
-  search_dm(req.query.q, function (result) {
-  	res.render('home',{erg:result,st:''});
-  });
+    if (req.query.q) {
+  	search_dm(req.query.q, function (result) {
+  		res.render('home',{erg:result,st:''});
+  	});
+    } else if (req.query.la && req.query.lo && req.query.ac) {
+	gh.sort(function (a,b){
+		var d1= distance(parseFloat(a.WGS84_LAT),parseFloat(a.WGS84_LON),parseFloat(req.query.la),parseFloat(req.query.lo));
+		var d2= distance(parseFloat(b.WGS84_LAT),parseFloat(b.WGS84_LON),parseFloat(req.query.la),parseFloat(req.query.lo));
+		//console.log ('It is: ' + (d1-d2));
+		return d1-d2;
+	});
+//	res.send(JSON.stringify(gh[0]));
+        var output = '';
+        for(var i = 0; i<5;i++) {
+            output += '<a href="dm/' + gh[i].DIVA + '">' + gh[i].NAME + '</a><br>\n';
+        }
+        res.render('home',{erg:output,st:''});
+    } else res.send('Falscher Aufruf');
 });
 
 app.get('/dm/:stationid', function (req, res) {

@@ -3,6 +3,29 @@
 <head>
     <meta charset="utf-8">
     <title>Abfahrtsmonitor WienerLinien</title>
+<style>
+ body {color: yellow; background-color:black; font-family: \'Oswald\', sans-serif;}
+ .line { border: 2px solid #888; display: inline-block; margin:0.3em; font-size:3em; padding:0.2em; background-color:#000; color: yellow; }
+ .num { display: inline-block; width:1.8em; font-size: 2em; }
+ .target { display: inline-block; width:8em; vertical-align:top; }
+ .time { display: inline-block; font-size: 2em; width:2em; text-align:right; }
+ a, a:visited, a:hover, a:active { color: yellow; }
+</style>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+	$(document).ready(function(){
+
+	    $("#h").hide();
+    	    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(successCallback); 
+
+    	    function successCallback(position) {
+	        $("#h").show();
+      	        $("#lo").val(position.coords.longitude);
+      	        $("#la").val(position.coords.latitude);
+      	        $("#ac").val(position.coords.accuracy);
+    	    }
+	});
+    </script>
 </head>
 <body>
     <form action="search">
@@ -11,5 +34,14 @@
  
         <button type="submit">Suche</button>
     </form>
+    
+    <form id="h" action="search">
+        <input id="la" type="hidden" name="la">
+        <input id="lo" type="hidden" name="lo">
+        <input id="ac" type="hidden" name="ac">
+
+        <button type="submit">Hier</button>
+    </form>
+
 </body>
 </html>
