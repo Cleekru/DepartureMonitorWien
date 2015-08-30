@@ -71,11 +71,11 @@ app.get('/', function (req, res) {
 
 
 app.get('/search', function (req, res) {
-    if (req.query.q) {
+    if (req.query.q && req.query.se==1) {
   	search_dm(req.query.q, function (result) {
   		res.render('home',{erg:result,st:''});
   	});
-    } else if (req.query.la && req.query.lo && req.query.ac) {
+    } else if (req.query.la && req.query.lo && req.query.ac && req.query.gps==2) {
 	gh.sort(function (a,b){
 		var d1= distance(parseFloat(a.WGS84_LAT),parseFloat(a.WGS84_LON),parseFloat(req.query.la),parseFloat(req.query.lo));
 		var d2= distance(parseFloat(b.WGS84_LAT),parseFloat(b.WGS84_LON),parseFloat(req.query.la),parseFloat(req.query.lo));
@@ -97,7 +97,7 @@ app.get('/dm/:stationid', function (req, res) {
   });
 });
 
-var server = app.listen(3000, function () {
+var server = app.listen(3001, function () {
   var host = server.address().address;
   var port = server.address().port;
 

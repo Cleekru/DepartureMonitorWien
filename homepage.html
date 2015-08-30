@@ -1,47 +1,79 @@
 <!doctype html>
 <html>
 <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta charset="utf-8">
-    <title>Abfahrtsmonitor WienerLinien</title>
+    <title>Departuremonitor WienerLinien</title>
 <style>
- body {color: yellow; background-color:black; font-family: \'Oswald\', sans-serif;}
- .line { border: 2px solid #888; display: inline-block; margin:0.3em; font-size:3em; padding:0.2em; background-color:#000; color: yellow; }
- .num { display: inline-block; width:1.8em; font-size: 2em; }
- .target { display: inline-block; width:8em; vertical-align:top; }
- .time { display: inline-block; font-size: 2em; width:2em; text-align:right; }
- a, a:visited, a:hover, a:active { color: yellow; }
+ 	body {margin:0.2em; color: yellow; width:800px; background-color:black; font-family: \'Oswald\', sans-serif; font-size:48pt;}
+ 	.line { border: 2px solid #888; display: inline-block; margin:0.3em; font-size:3em; padding:0.2em; background-color:#000; color: yellow; }
+	.num { display: inline-block; width:1.8em; font-size: 2em; }
+	.target { display: inline-block; width:8em; vertical-align:top; }
+	.time { display: inline-block; font-size: 2em; width:2em; text-align:right; }
+ 	a, a:visited, a:hover, a:active { color: yellow; }
+	button {font-size:0.85em; margin:0.2em;}
+	input {font-size:0.85em; margin:0.2em;}
+	#map { height: 400px; width:750px;}
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script>
+	var googlemapsready=false;
+	var locationready=false;
+	var gps=false;
+
 	$(document).ready(function(){
-
-	    $("#h").hide();
+	    $(".h").hide();
     	    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(successCallback); 
+        });
 
-    	    function successCallback(position) {
-	        $("#h").show();
-      	        $("#lo").val(position.coords.longitude);
-      	        $("#la").val(position.coords.latitude);
-      	        $("#ac").val(position.coords.accuracy);
-    	    }
-	});
+    	function successCallback(position) {
+	    $(".h").show();
+	    gps=position;
+      	    $("#lo").val(position.coords.longitude);
+      	    $("#la").val(position.coords.latitude);
+      	    $("#ac").val(position.coords.accuracy);
+	    locationready=true;
+	    if (locationready && googlemapsready) showMap();
+	}
+
+        function showMap() {
+	    var myLatLng = {lat: gps.coords.latitude, lng: gps.coords.longitude};
+    
+      	    var map = new google.maps.Map(document.getElementById('map'), {
+	        zoom: 15,
+	        center: myLatLng
+	    });
+    
+	    var marker = new google.maps.Marker({
+	      position: myLatLng,
+	      map: map,
+ 	      title: 'Your Location!'
+ 	    });
+        }
+	
+
+	function googlemapsloaded() {
+		googlemapsready=true;
+	        if (locationready && googlemapsready) showMap();
+	}
+
     </script>
 </head>
 <body>
     <form action="search">
-        <label for="q">Stationssuche</label> 
-        <input type="text" name="q" maxlength="30">
- 
-        <button type="submit">Suche</button>
-    </form>
-    
-    <form id="h" action="search">
-        <input id="la" type="hidden" name="la">
+        <label for="q">Stationssuche</label><br/> 
+        <input type="text" name="q" maxlength="30" size="10">
+	<button type="submit" name="se" value="1"><i class="fa fa-search"></i></button>
+        
+	
+	<input id="la" type="hidden" name="la">
         <input id="lo" type="hidden" name="lo">
         <input id="ac" type="hidden" name="ac">
 
-        <button type="submit">Hier</button>
+        <button class="h" type="submit" name="gps" value="2"><i class="fa fa-map-marker"></i></button>
     </form>
+    <div class="h" id="map"></div>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=googlemapsloaded"></script>
 
 </body>
 </html>
