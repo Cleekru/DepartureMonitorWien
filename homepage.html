@@ -23,8 +23,13 @@
 
 	$(document).ready(function(){
 	    $(".h").hide();
-    	    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(successCallback); 
+    	    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(successCallback,errorCallback); 
         });
+
+	function errorCallback(e) {
+		gps=e;
+		//alert(JSON.stringify(e));
+	}
 
     	function successCallback(position) {
 	    $(".h").show();
@@ -38,7 +43,7 @@
 
         function showMap() {
 	    var myLatLng = {lat: gps.coords.latitude, lng: gps.coords.longitude};
-    
+	    
       	    var map = new google.maps.Map(document.getElementById('map'), {
 	        zoom: 15,
 	        center: myLatLng
@@ -50,6 +55,20 @@
 	      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6 },
  	      title: 'Your Location!'
  	    });
+	
+	    $.getJSON('/api/nearestStations', myLatLng, function (data) {
+		for(var i = 0; i<data.length;i++) {
+		    var marker = new google.maps.Marker({
+		    	map: map,   
+			position: data[i].loc,
+			title: data[i].title 
+		    });	
+		    marker.targeturl='/dm/' + data[i].stationid;
+		    marker.addListener('click', function (){
+			window.location.href= this.targeturl;
+		    });
+		}
+	    }); 
         }
 	
 

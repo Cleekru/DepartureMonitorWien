@@ -1,9 +1,15 @@
 var express = require('express');
-var app = express();
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
 var request = require('request');
 var parseString = require('xml2js').parseString;
 
-var fs = require('fs');
+var app = express();
+
+var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+
 var gh = JSON.parse(fs.readFileSync('halt.json', 'utf8'));
 
 function get_dm (stationid, callback) {
@@ -69,11 +75,30 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname+'/homepage.html');
 });
 
+app.get("/api/nearestStations",function(req,res){
+  //res.send([{loc:{lat: 48.206759,lng: 16.393374},title: 'Home',stationid: '60201071'}]);  
+     if (req.query.lat && req.query.lng) {
+        gh.sort(function (a,b){
+                var d1= distance(parseFloat(a.WGS84_LAT),parseFloat(a.WGS84_LON),parseFloat(req.query.lat),parseFloat(req.query.lng));
+                var d2= distance(parseFloat(b.WGS84_LAT),parseFloat(b.WGS84_LON),parseFloat(req.query.lat),parseFloat(req.query.lng));
+                //console.log ('It is: ' + (d1-d2));
+                return d1-d2;
+        });
+//      res.send(JSON.stringify(gh[0]));
+        var output = [];
+        for(var i = 0; i<5;i++) {
+            output.push({loc:{lat: parseFloat(gh[i].WGS84_LAT),lng: parseFloat(gh[i].WGS84_LON)},title: gh[i].NAME,stationid: gh[i].DIVA});
+        }
+        res.send(output);
+ 
+    } else res.send('Error lat lng missing!');
+
+});
 
 app.get('/search', function (req, res) {
     if (req.query.q && req.query.se==1) {
   	search_dm(req.query.q, function (result) {
-  		res.render('home',{erg:result,st:''});
+  		res.render('searchresult',{erg:result,st:''});
   	});
     } else if (req.query.la && req.query.lo && req.query.ac && req.query.gps==2) {
 	gh.sort(function (a,b){
@@ -87,7 +112,7 @@ app.get('/search', function (req, res) {
         for(var i = 0; i<5;i++) {
             output += '<a href="dm/' + gh[i].DIVA + '">' + gh[i].NAME + '</a><br>\n';
         }
-        res.render('home',{erg:output,st:''});
+        res.render('searchresult',{erg:output,st:''});
     } else res.send('Falscher Aufruf');
 });
 
@@ -97,9 +122,15 @@ app.get('/dm/:stationid', function (req, res) {
   });
 });
 
-var server = app.listen(3001, function () {
-  var host = server.address().address;
-  var port = server.address().port;
+var credentials = {key: privateKey, cert: certificate};
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(3001, function () {
+  var host = httpServer.address().address;
+  var port = httpServer.address().port;
 
   console.log('Example app listening at http://%s:%s', host, port);
 });
+httpsServer.listen(443);
