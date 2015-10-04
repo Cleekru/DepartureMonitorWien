@@ -11,8 +11,8 @@ https nicht aktiviert.
 Wenn https aktiviert ist, muss ein direcotory sslcert und folgende Files
 erzeugt werden:
 
-. sslcert/server.key
-. sslcert/server.crt
+* sslcert/server.key
+* sslcert/server.crt
 
 Auf http://alext.mail.at/?p=218 kannst Du sehen wie man key und cert 
 unter linux erzeugen kann.
