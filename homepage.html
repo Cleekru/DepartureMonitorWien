@@ -3,17 +3,24 @@
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="icon" sizes="192x192" href="static/haltestelle.png"> 
+    <link rel="apple-touch-icon" sizes="192x192" href="static/haltestelle.png">
     <title>Departuremonitor WienerLinien</title>
 <style>
- 	body {margin:0.2em; color: yellow; width:800px; background-color:black; font-family: \'Oswald\', sans-serif; font-size:48pt;}
- 	.line { border: 2px solid #888; display: inline-block; margin:0.3em; font-size:3em; padding:0.2em; background-color:#000; color: yellow; }
-	.num { display: inline-block; width:1.8em; font-size: 2em; }
-	.target { display: inline-block; width:8em; vertical-align:top; }
-	.time { display: inline-block; font-size: 2em; width:2em; text-align:right; }
+ 	body {
+		margin:0; 
+	        color: yellow; background-color:black; 
+		width:100%; height:100%;
+		overflow:hidden;
+		font-family: \'Oswald\', sans-serif; font-size:14pt;
+	     }
+	#map { position:absolute; left:0; right:0; bottom:0; top:3.8em; }
+	form { margin:0.5em; }
  	a, a:visited, a:hover, a:active { color: yellow; }
 	button {font-size:0.85em; margin:0.2em;}
 	input {font-size:0.85em; margin:0.2em;}
-	#map { height: 400px; width:750px;}
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script>
@@ -29,6 +36,7 @@
 	function errorCallback(e) {
 		gps=e;
 		//alert(JSON.stringify(e));
+		$("#locationsearch").text("Standort nicht gefunden");
 	}
 
     	function successCallback(position) {
@@ -38,6 +46,7 @@
       	    $("#la").val(position.coords.latitude);
       	    $("#ac").val(position.coords.accuracy);
 	    locationready=true;
+	    $("#locationsearch").hide();
 	    if (locationready && googlemapsready) showMap();
 	}
 
@@ -84,7 +93,6 @@
         <label for="q">Stationssuche</label><br/> 
         <input type="text" name="q" maxlength="30" size="10">
 	<button type="submit" name="se" value="1"><i class="fa fa-search"></i></button>
-        
 	
 	<input id="la" type="hidden" name="la">
         <input id="lo" type="hidden" name="lo">
@@ -93,6 +101,7 @@
         <button class="h" type="submit" name="gps" value="2"><i class="fa fa-map-marker"></i></button>
     </form>
     <div class="h" id="map"></div>
+    <div id="locationsearch">Suche nach Standort läuft</div>
     <script async defer src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=googlemapsloaded"></script>
 
 </body>
