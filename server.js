@@ -139,6 +139,9 @@ app.get('/dm/:stationid', function (req, res) {
   });
 });
 
+app.use('/static', express.static('static'));
+
+
 var httpServer = http.createServer(app);
 
 httpServer.listen(config.httpport, function () {
