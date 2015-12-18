@@ -1,4 +1,7 @@
 halt.json
+steige.json
 wienerlinien-ogd-haltestellen.csv
+wienerlinien-ogd-steige.csv
 node_modules
 config.js
+tmp
