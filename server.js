@@ -28,53 +28,58 @@ if (config.httpsport>0)
 }
 
 var gh = JSON.parse(fs.readFileSync('halt.json', 'utf8'));
+var steige = JSON.parse(fs.readFileSync('steige.json', 'utf8'));
+
 
 function get_dm (stationid, callback) {
-	request('http://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID=0&locationServerActive=1&type_dm=any&name_dm='+stationid+'&limit=8', function (error, response, body) {
-	  if (!error && response.statusCode == 200) {
-	    parseString(body, function (err,result) {
-//		console.log(result.itdRequest.$.sessionID);
-//		console.log(JSON.stringify(result,false,2));
-		if (!result.itdRequest || !result.itdRequest.$.sessionID) { callback("API Error 1"); return; }
-		if (!result.itdRequest.itdDepartureMonitorRequest[0].itdServingLines) { callback("Unbekannte Station"); return; }
-		if (result.itdRequest.itdDepartureMonitorRequest[0].itdServingLines[0]=="") { callback("Keine Linien an dieser Station gefunden"); return; }
-		var stid = result.itdRequest.itdDepartureMonitorRequest[0].itdOdv[0].itdOdvName[0].odvNameElem[0]._;
-		request('http://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID='+result.itdRequest.$.sessionID+'&requestID=1&dmLineSelectionAll=1', function (error, response, body) {
-		    if (!error && response.statusCode == 200) {
-  			    parseString(body, function (err,result) {
-				var output = '';
-				if (!result.itdRequest || !result.itdRequest.itdDepartureMonitorRequest || !result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList ||
-				    !result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList[0].itdDeparture) { callback('error'); return; }
-				for(var i = 0; i<result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList[0].itdDeparture.length;i++) {
-				    var departure = result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList[0].itdDeparture[i];
-				    var end = departure.itdServingLine[0].$.direction;
-				    end = end.replace('Wien ', '');
-				    output += '<div class=line><div class=num>' + departure.itdServingLine[0].$.symbol + 
-					      '</div><div class=target>' + end + '</div><div class=time>' + departure.$.countdown + '</div></div>';
+	var rbllist = '';
+        for (var i = 0; i<steige.length; i++) {
+                if (steige[i].FK_HALTESTELLEN_ID == stationid && parseInt(steige[i].RBL_NUMMER)>0) {
+                        rbllist += 'rbl=' + steige[i].RBL_NUMMER + '&';
+                }
+        }
+	if (rbllist == '') {
+		callback('Haltestelle ohne Bahnsteige!');
+		return;
+	}
+	var output = [];
+	request('http://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey, function (error, response, body) {
+	  	if (!error && response.statusCode == 200) {
+			var pody = JSON.parse(body); 
+			if (!pody.data.monitors[0]) { callback('Station nicht gefunden!'); return; }
+               		var stid = pody.data.monitors[0].locationStop.properties.title;
+			for (var i=0; i<pody.data.monitors.length; i++){
+				for (var i1=0; i1<pody.data.monitors[i].lines.length; i1++) {
+					for (var i2=0; i2<pody.data.monitors[i].lines[i1].departures.departure.length && i2<2; i2++) {
+						output.push({countdown:parseInt(pody.data.monitors[i].lines[i1].departures.departure[i2].departureTime.countdown),
+							     line:'<div class=line><div class=num>' + pody.data.monitors[i].lines[i1].name + '</div><div class=target>'
+							  	  + pody.data.monitors[i].lines[i1].towards + '</div><dic class=time>'
+							  	  + pody.data.monitors[i].lines[i1].departures.departure[i2].departureTime.countdown + '</div></div>'
+						});
+					}
 				}
-				callback(output,stid);
-// 				console.log(JSON.stringify(result.itdRequest.itdDepartureMonitorRequest[0].itdDepartureList[0].itdDeparture[0],false,2));
-		    	});
-		     } else callback('Server nicht erreichbar. Bitte später probieren.');
-		});
-	    });
-	  } else callback('Server nicht erreichbar. Bitte später probieren.');
+			}
+			output.sort(function (a,b){
+				return a.countdown-b.countdown;
+			});
+			var outputstring = '';
+			for (var i = 0; i<output.length; i++) {
+				outputstring += output[i].line;
+			}
+			callback(outputstring,stid);
+		} else callback('Server nicht erreichbar. Bitte später probieren.');
 	});
 }
 
 function search_dm (q, callback) {
-        request('http://www.wienerlinien.at/ogd_routing/XML_STOPFINDER_REQUEST?locationServerActive=1&outputFormat=JSON&type_sf=stop&name_sf=' + q, function (error, response, body) {
-		if (!error && response.statusCode == 200) {
-			var output = '';
-			result = JSON.parse(body);
-			if (result.stopFinder.length == 0) output = 'Keine oder zu viele Suchergebnisse';
-                       	for(var i = 0; i<result.stopFinder.length;i++) {
-				var station = result.stopFinder[i];
-				output += '<a href="dm/' + station.ref.id + '">' + station.name + '</a><br>\n';
-                       	}
-                       	callback(output);
-		} else callback('Server nicht erreichbar. Bitte später probieren.');
-	});	
+	var output = '';
+	for (var i = 0; i<gh.length; i++) {
+		if (gh[i].NAME.match(new RegExp(q,'i'))) {
+			output += '<a href="dm/' + gh[i].HALTESTELLEN_ID + '">' + gh[i].NAME + '</a><br>\n';
+		}
+	}
+	if (output=='') callback('Server nicht erreichbar. Bitte später probieren.');
+	else callback(output);
 }
 
 function distance (x1,y1,x2,y2) {
@@ -104,7 +109,7 @@ app.get("/api/nearestStations",function(req,res){
 //      res.send(JSON.stringify(gh[0]));
         var output = [];
         for(var i = 0; i<5;i++) {
-            output.push({loc:{lat: parseFloat(gh[i].WGS84_LAT),lng: parseFloat(gh[i].WGS84_LON)},title: gh[i].NAME,stationid: gh[i].DIVA});
+            output.push({loc:{lat: parseFloat(gh[i].WGS84_LAT),lng: parseFloat(gh[i].WGS84_LON)},title: gh[i].NAME,stationid: gh[i].HALTESTELLEN_ID});
         }
         res.send(output);
  
@@ -127,7 +132,7 @@ app.get('/search', function (req, res) {
 //	res.send(JSON.stringify(gh[0]));
         var output = '';
         for(var i = 0; i<5;i++) {
-            output += '<a href="dm/' + gh[i].DIVA + '">' + gh[i].NAME + '</a><br>\n';
+            output += '<a href="dm/' + gh[i].HALTESTELLEN_ID + '">' + gh[i].NAME + '</a><br>\n';
         }
         res.render('searchresult',{erg:output,st:''});
     } else res.send('Falscher Aufruf');

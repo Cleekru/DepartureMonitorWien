@@ -4,4 +4,5 @@ wienerlinien-ogd-haltestellen.csv
 wienerlinien-ogd-steige.csv
 node_modules
 config.js
+sslcert
 tmp
