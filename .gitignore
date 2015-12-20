@@ -6,3 +6,4 @@ node_modules
 config.js
 sslcert
 tmp
+access.log

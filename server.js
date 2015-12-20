@@ -3,9 +3,16 @@ var fs = require('fs');
 var http = require('http');
 var https = require('https');
 var request = require('request');
-var parseString = require('xml2js').parseString;
+
+// access log module
+var morgan = require('morgan');
 
 var app = express();
+
+// open a logfile in append mode
+var accessLogStream = fs.createWriteStream(__dirname + '/access.log', {flags: 'a'})
+// setup the logger
+app.use(morgan('combined', {stream: accessLogStream}))
 
 var config={
    httpport:3000,
