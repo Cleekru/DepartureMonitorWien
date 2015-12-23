@@ -50,11 +50,15 @@
 	    if (locationready && googlemapsready) showMap();
 	}
 
+	var map;
+	var timer = false;
+	var markers = [];
+
         function showMap() {
 	    var myLatLng = {lat: gps.coords.latitude, lng: gps.coords.longitude};
 	    
-      	    var map = new google.maps.Map(document.getElementById('map'), {
-	        zoom: 15,
+      	    map = new google.maps.Map(document.getElementById('map'), {
+	        zoom: 16,
 	        center: myLatLng
 	    });
     
@@ -65,7 +69,19 @@
  	      title: 'Your Location!'
  	    });
 	
-	    $.getJSON('/api/nearestStations', myLatLng, function (data) {
+	    map.addListener('bounds_changed', function(e) {
+		if (timer) clearTimeout(timer);
+		timer=setTimeout(function (){ timer = false; getMarkers(map.getBounds().toJSON()); },100 );
+	    });
+	}
+
+	function getMarkers(rect) {
+	    for (var i = 0; i < markers.length; i++) {
+   	       	markers[i].setMap(null);
+ 	    }
+  	    markers = [];
+	    if (map.getZoom()<14) return;
+	    $.getJSON('/api/recStations', rect, function (data) {
 		for(var i = 0; i<data.length;i++) {
 		    var marker = new google.maps.Marker({
 		    	map: map,   
@@ -76,6 +92,7 @@
 		    marker.addListener('click', function (){
 			window.location.href= this.targeturl;
 		    });
+		    markers.push(marker);
 		}
 	    }); 
         }

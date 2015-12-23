@@ -104,6 +104,18 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname+'/homepage.html');
 });
 
+app.get("/api/recStations",function(req,res){
+	var output = [];
+	if (req.query.east && req.query.north && req.query.south && req.query.west) {
+		for (var i = 0; i<gh.length; i++) {
+			if (gh[i].WGS84_LAT < req.query.north && gh[i].WGS84_LAT > req.query.south && gh[i].WGS84_LON < req.query.east && gh[i].WGS84_LON > req.query.west) 
+			            output.push({loc:{lat: parseFloat(gh[i].WGS84_LAT),lng: parseFloat(gh[i].WGS84_LON)},title: gh[i].NAME,stationid: gh[i].HALTESTELLEN_ID});
+		}
+        	res.send(output);
+	} else res.send('Error! Rec not defiend!');
+});
+
+
 app.get("/api/nearestStations",function(req,res){
   //res.send([{loc:{lat: 48.206759,lng: 16.393374},title: 'Home',stationid: '60201071'}]);  
      if (req.query.lat && req.query.lng) {
