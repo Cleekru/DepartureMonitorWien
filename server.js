@@ -7,6 +7,9 @@ var request = require('request');
 // access log module
 var morgan = require('morgan');
 
+// module for fuzzy string match 
+var clj_fuzzy = require('clj-fuzzy');
+
 var app = express();
 
 // open a logfile in append mode
@@ -80,10 +83,14 @@ function get_dm (stationid, callback) {
 
 function search_dm (q, callback) {
 	var output = '';
-	for (var i = 0; i<gh.length; i++) {
-		if (gh[i].NAME.match(new RegExp(q,'i'))) {
-			output += '<a href="dm/' + gh[i].HALTESTELLEN_ID + '">' + gh[i].NAME + '</a><br>\n';
-		}
+	for (var i=0; i<gh.length; i++) gh[i].sort_distance=clj_fuzzy.metrics.dice(q,gh[i].NAME);
+	gh.sort(function(a,b) {
+		var d1=a.sort_distance;
+		var d2=b.sort_distance;
+		return d2-d1;
+	});
+	for (var i = 0; i<20; i++) {
+		output += '<a href="dm/' + gh[i].HALTESTELLEN_ID + '">' + gh[i].NAME + '</a><br>\n';
 	}
 	if (output=='') callback('Server nicht erreichbar. Bitte später probieren.');
 	else callback(output);
