@@ -53,7 +53,12 @@ function get_dm (stationid, callback) {
 	request('http://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey, function (error, response, body) {
 	  	if (!error && response.statusCode == 200) {
 			var pody = JSON.parse(body); 
-			if (!pody.data.monitors[0]) { callback('Station nicht gefunden!'); return; }
+			if (!pody.data.monitors[0]) 
+			{
+				callback('Station nicht gefunden!');
+console.log("Station nicht gefunden: "+body);
+				return;	
+			}
                		var stid = pody.data.monitors[0].locationStop.properties.title;
 			for (var i=0; i<pody.data.monitors.length; i++){
 				for (var i1=0; i1<pody.data.monitors[i].lines.length; i1++) {

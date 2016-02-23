@@ -89,7 +89,8 @@
 			title: data[i].title 
 		    });	
 		    marker.targeturl='/dm/' + data[i].stationid;
-		    marker.addListener('click', function (){
+		    marker.addListener('mousedown', function (){
+			//alert("click");
 			window.location.href= this.targeturl;
 		    });
 		    markers.push(marker);
@@ -119,7 +120,7 @@
     </form>
     <div class="h" id="map"></div>
     <div id="locationsearch">Suche nach Standort läuft</div>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=googlemapsloaded"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?callback=googlemapsloaded"></script>
 
 </body>
 </html>
