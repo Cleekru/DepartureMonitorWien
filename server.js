@@ -53,9 +53,11 @@ function get_dm (stationid, callback) {
 		return;
 	}
 	var output = [];
+	console.log('http://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey);
 	request('http://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey, function (error, response, body) {
 	  	if (!error && response.statusCode == 200) {
-			var pody = JSON.parse(body); 
+			var pody;
+			try { pody = JSON.parse(body);  } catch(e) { callback("WienderLinine Open Data Interface DOWN!"); return; }
 			if (!pody.data.monitors[0]) 
 			{
 				callback('Station nicht gefunden!');
