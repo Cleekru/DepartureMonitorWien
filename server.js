@@ -58,10 +58,11 @@ function get_dm (stationid, callback) {
 	  	if (!error && response.statusCode == 200) {
 			var pody;
 			try { pody = JSON.parse(body);  } catch(e) { callback("WienderLinine Open Data Interface DOWN!"); return; }
+			if (!pody.data || !pody.data.monitors ) { callback("WienderLinine Open Data Interface DOWN!"); return; }
 			if (!pody.data.monitors[0]) 
 			{
 				callback('Station nicht gefunden!');
-console.log("Station nicht gefunden: "+body);
+				console.log("Station nicht gefunden: "+body);
 				return;	
 			}
                		var stid = pody.data.monitors[0].locationStop.properties.title;
@@ -87,6 +88,9 @@ console.log("Station nicht gefunden: "+body);
 		} else callback('Server nicht erreichbar. Bitte später probieren.');
 	});
 }
+
+
+
 
 function search_dm (q, callback) {
 	var output = '';
@@ -129,6 +133,20 @@ app.get("/api/recStations",function(req,res){
 	} else res.send('Error! Rec not defiend!');
 });
 
+// sample code for google home
+// app.post("/webhook", function(req,res) {
+// 	console.log("-----webhook wurde angefragt");
+// 	get_dm(214460618, function(result, sti){
+// 		var bodypart = result.match('<div class=target>Stefan-Fadinger-Platz</div><dic class=time>([1-9][0-9]*)');
+// 		if (!bodypart) {
+//                         res.send({ "fulfillmentText": "Es konnten keine Daten erhalten werden.", "outputContexts": [] });
+// 		} else if (bodypart[1] == 1) {
+//                         res.send({ "fulfillmentText": "Die Straßenbahn Richtung Stefan-Fadinger-Platz kommt in Einer Minute.", "outputContexts": [] });
+// 		} else {
+// 			res.send({ "fulfillmentText": "Die Straßenbahn Richtung Stefan-Fadinger-Platz kommt in " + bodypart[1] + " Minuten.", "outputContexts": [] });
+// 		}
+// 	});
+// });
 
 app.get("/api/nearestStations",function(req,res){
   //res.send([{loc:{lat: 48.206759,lng: 16.393374},title: 'Home',stationid: '60201071'}]);  

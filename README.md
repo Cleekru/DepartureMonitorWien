@@ -23,6 +23,9 @@ Die "Wienerlinien Echtzeitdaten" API benötigt eine Key den man auf
 https://www.data.gv.at/katalog/dataset/add66f20-d033-4eee-b9a0-47019828e698
 beantragen muss.
 
+API key für google maps (homepage.html) muss angepasst werden für mapview.
+https://developers.google.com/maps/documentation/javascript/adding-a-google-map#key
+
 # Ressourcen
 
 Die früher verwendete API der Wiener Linie "Wiener Linien - Routingservice"
