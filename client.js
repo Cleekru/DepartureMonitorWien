@@ -2,7 +2,7 @@ var request = require('request');
 var parseString = require('xml2js').parseString;
 
 function get_dm (stationid, callback) {
-	request('http://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID=0&locationServerActive=1&type_dm=any&name_dm='+stationid+'&limit=20', function (error, response, body) {
+	request('https://www.wienerlinien.at/ogd_routing/XML_DM_REQUEST?sessionID=0&locationServerActive=1&type_dm=any&name_dm='+stationid+'&limit=20', function (error, response, body) {
 	  if (!error && response.statusCode == 200) {
 	    parseString(body, function (err,result) {
 //		console.log(result.itdRequest.$.sessionID);

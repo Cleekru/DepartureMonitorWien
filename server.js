@@ -53,8 +53,8 @@ function get_dm (stationid, callback) {
 		return;
 	}
 	var output = [];
-	console.log('http://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey);
-	request('http://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey, function (error, response, body) {
+	console.log('https://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey);
+	request('https://www.wienerlinien.at/ogd_realtime/monitor?' + rbllist + 'sender=' + config.apikey, function (error, response, body) {
 	  	if (!error && response.statusCode == 200) {
 			var pody;
 			try { pody = JSON.parse(body);  } catch(e) { callback("WienderLinine Open Data Interface DOWN!"); return; }
