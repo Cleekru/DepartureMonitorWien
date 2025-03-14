@@ -5,6 +5,11 @@
   "version": "0.7.0",
   "private": true,
   "dependencies": {
-    "request":"2.x", "express":"4.x", "ejs":"2.x", "csv2json":"1.x", "morgan":"1.x", "clj-fuzzy":"0.3.x"
+    "clj-fuzzy": "0.4.x",
+    "csv2json": "2.x",
+    "ejs": "3.x",
+    "express": "^4.21.0",
+    "morgan": "1.x",
+    "request": "2.x"
   }
 }
